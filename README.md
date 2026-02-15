@@ -14,11 +14,20 @@ This project references the canonical ACP schema from `../agent-client-protocol`
 - Strict JSON Schema validation for ACP payloads
 - End-to-end codec helpers for RPC parsing/encoding + typed decode
 - Protocol-level notifications (e.g. `$/cancel_request`, unstable)
+- Enum convenience constants (`ToolKind::READ`, `ToolCallStatus::COMPLETED`, etc.)
 
 ## Install
 
+Add to your Gemfile:
+
 ```ruby
-gem "agent-client-protocol", path: "."
+gem "agent-client-protocol", "~> 0.1"
+```
+
+For local development against the source checkout:
+
+```ruby
+gem "agent-client-protocol", path: "/path/to/agent-client-protocol-ruby"
 ```
 
 ## Quick Start
@@ -50,6 +59,20 @@ payload.to_h             # => {"protocolVersion"=>1, "clientCapabilities"=>{}}
 Referenced nested schema fields are also coerced to typed models (including scalar wrappers such as `ProtocolVersion`).
 Legacy protocol version strings are accepted and coerced to version `0` (matching official ACP behavior).
 
+### Enum Constants
+
+Common enum values are available as Ruby constants:
+
+```ruby
+AgentClientProtocol::ToolKind::READ          # => "read"
+AgentClientProtocol::ToolCallStatus::PENDING  # => "pending"
+AgentClientProtocol::PlanEntryStatus::COMPLETED # => "completed"
+AgentClientProtocol::StopReason::END_TURN     # => "end_turn"
+AgentClientProtocol::Role::ASSISTANT          # => "assistant"
+```
+
+### Validation
+
 Payloads are schema-validated during decode by default. You can also validate directly:
 
 ```ruby
@@ -59,6 +82,8 @@ AgentClientProtocol.validate("InitializeRequest", {
 })
 # => true
 ```
+
+### Codec
 
 Codec helpers provide end-to-end JSON-RPC message handling:
 
@@ -76,6 +101,17 @@ decoded.typed_payload.class # => AgentClientProtocol::Types::InitializeRequest
 ## Scope
 
 This is a schema-driven Ruby runtime implementation. It dynamically generates one Ruby class per ACP schema definition at runtime.
+
+### Optional / Undefined Fields
+
+Some ACP types (especially unstable ones) distinguish between a field being absent (undefined), explicitly `null`, and having a value. In the official Rust SDK this is modeled as `MaybeUndefined<T>`.
+
+In Ruby, absent keys in the underlying attribute Hash represent "undefined", `nil` values represent JSON `null`, and all other values represent present data. Use `key?` to distinguish absent from null:
+
+```ruby
+obj.key?(:title)  # false => undefined (field was not sent)
+obj[:title]        # nil   => could be null OR absent; use key? to tell apart
+```
 
 ## Syncing With Upstream Schema
 
