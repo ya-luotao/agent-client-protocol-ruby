@@ -6,6 +6,8 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    minitest (5.27.0)
+    rake (13.3.1)
 
 PLATFORMS
   arm64-darwin-24
@@ -13,6 +15,8 @@ PLATFORMS
 
 DEPENDENCIES
   agent-client-protocol!
+  minitest (~> 5.0)
+  rake (~> 13.0)
 
 BUNDLED WITH
    2.6.7
