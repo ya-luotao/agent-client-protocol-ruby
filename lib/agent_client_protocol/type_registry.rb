@@ -7,6 +7,9 @@ module AgentClientProtocol
   end
 
   class TypeRegistry
+    @mutex = Mutex.new
+    @loaded = {}
+
     class << self
       def fetch(definition_name, unstable: false)
         ensure_loaded!(unstable: unstable)
@@ -41,14 +44,17 @@ module AgentClientProtocol
 
       def ensure_loaded!(unstable: false)
         key = unstable ? :unstable : :stable
-        @loaded ||= {}
         return if @loaded[key]
 
-        namespace = unstable ? Types::Unstable : Types
-        definitions = SchemaRegistry.defs(unstable: unstable)
-        build_types!(namespace, definitions, unstable: unstable)
+        @mutex.synchronize do
+          return if @loaded[key]
 
-        @loaded[key] = true
+          namespace = unstable ? Types::Unstable : Types
+          definitions = SchemaRegistry.defs(unstable: unstable)
+          build_types!(namespace, definitions, unstable: unstable)
+
+          @loaded[key] = true
+        end
       end
 
       def build_types!(namespace, definitions, unstable:)
