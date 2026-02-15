@@ -11,6 +11,7 @@ require_relative "agent_client_protocol/validator"
 require_relative "agent_client_protocol/rpc"
 require_relative "agent_client_protocol/decoder"
 require_relative "agent_client_protocol/codec"
+require_relative "agent_client_protocol/constants"
 
 module AgentClientProtocol
   AGENT_METHOD_NAMES = Methods.agent.freeze
