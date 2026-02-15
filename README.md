@@ -4,7 +4,7 @@ Ruby helpers for implementing the [Agent Client Protocol (ACP)](https://agentcli
 
 > Community version (unofficial): this repository is not the official ACP Ruby SDK and is not maintained by the ACP core maintainers.
 
-This project references the canonical ACP schema from `../agent-client-protocol` and provides:
+This gem ships with a snapshot of the official ACP JSON Schema files. It provides:
 
 - ACP method constants (stable + unstable)
 - Protocol version parsing behavior compatible with ACP
@@ -115,12 +115,21 @@ obj[:title]        # nil   => could be null OR absent; use key? to tell apart
 
 ## Syncing With Upstream Schema
 
+The `schema/` directory contains a snapshot of the official ACP JSON Schema. To update it you need a local clone of the [official ACP repository](https://github.com/anthropics/agent-client-protocol):
+
 ```bash
+# Clone the official repo next to this one (only needed once)
+git clone https://github.com/anthropics/agent-client-protocol.git ../agent-client-protocol
+
+# Copy the latest schema files into this repo
 ./scripts/sync_schema.sh
 ```
 
-You can also pass a custom source directory:
+Both `sync_schema.sh` and `check_schema_sync.sh` default to `../agent-client-protocol/schema` as the upstream source. You can override this by passing a custom path:
 
 ```bash
 ./scripts/sync_schema.sh /path/to/agent-client-protocol/schema
+./scripts/check_schema_sync.sh /path/to/agent-client-protocol/schema
 ```
+
+> **Note for gem users:** The schema files are bundled inside the gem — you only need the upstream clone if you are contributing to this SDK or want to check for schema drift.
